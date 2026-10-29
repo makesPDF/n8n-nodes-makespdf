@@ -1,0 +1,18 @@
+{
+	"node": "@makespdf/n8n-nodes-makespdf.makesPdf",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Data & Storage", "Productivity"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://github.com/makesPDF/n8n-nodes-makespdf#credentials"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/makesPDF/n8n-nodes-makespdf#readme"
+			}
+		]
+	}
+}
