@@ -1,0 +1,100 @@
+{
+	"name": "makesPDF: markdown report",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "c4e1d2f3-7a1f-4d2c-8b62-2a7a4a1e2b01",
+			"name": "When clicking 'Execute workflow'",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [0, 0]
+		},
+		{
+			"parameters": {
+				"assignments": {
+					"assignments": [
+						{
+							"id": "c4e1d2f3-7a1f-4d2c-8b62-2a7a4a1e2b10",
+							"name": "markdown",
+							"value": "=# Weekly sales report\n\nWeek ending {{ $now.toFormat('d LLLL yyyy') }}.\n\n## Summary\n\n| Region | Orders | Revenue |\n| ------ | -----: | ------: |\n| North  |     42 | $18,400 |\n| South  |     31 | $12,950 |\n| West   |     57 | $24,300 |\n\n> [!NOTE]\n> Replace this node with the data your workflow already has: a spreadsheet, a database query or an AI summary.\n\n## Orders by region\n\n```mermaid\npie showData\n  accTitle: Orders by region\n  \"North\" : 42\n  \"South\" : 31\n  \"West\" : 57\n```\n",
+							"type": "string"
+						}
+					]
+				},
+				"options": {}
+			},
+			"id": "c4e1d2f3-7a1f-4d2c-8b62-2a7a4a1e2b02",
+			"name": "Report Markdown",
+			"type": "n8n-nodes-base.set",
+			"typeVersion": 3.4,
+			"position": [220, 0]
+		},
+		{
+			"parameters": {
+				"resource": "markdown",
+				"operation": "validate",
+				"markdown": "={{ $json.markdown }}"
+			},
+			"id": "c4e1d2f3-7a1f-4d2c-8b62-2a7a4a1e2b03",
+			"name": "Check Accessibility",
+			"type": "@makespdf/n8n-nodes-makespdf.makesPdf",
+			"typeVersion": 1,
+			"position": [440, 0]
+		},
+		{
+			"parameters": {
+				"resource": "pdf",
+				"operation": "fromMarkdown",
+				"markdown": "={{ $('Report Markdown').item.json.markdown }}",
+				"markdownOptions": {
+					"title": "Weekly sales report",
+					"pageNumbers": "page-n-of-total"
+				},
+				"fileName": "weekly-sales-report.pdf"
+			},
+			"id": "c4e1d2f3-7a1f-4d2c-8b62-2a7a4a1e2b04",
+			"name": "Create Report PDF",
+			"type": "@makespdf/n8n-nodes-makespdf.makesPdf",
+			"typeVersion": 1,
+			"position": [660, 0]
+		}
+	],
+	"connections": {
+		"When clicking 'Execute workflow'": {
+			"main": [
+				[
+					{
+						"node": "Report Markdown",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Report Markdown": {
+			"main": [
+				[
+					{
+						"node": "Check Accessibility",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Check Accessibility": {
+			"main": [
+				[
+					{
+						"node": "Create Report PDF",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"settings": {
+		"executionOrder": "v1"
+	}
+}
