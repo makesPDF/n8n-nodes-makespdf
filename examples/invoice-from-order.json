@@ -1,0 +1,95 @@
+{
+	"name": "makesPDF: invoice from an order",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "b0a3c1e2-6f0e-4c1b-9a51-1f6f3f0d1a01",
+			"name": "When clicking 'Execute workflow'",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [0, 0]
+		},
+		{
+			"parameters": {
+				"mode": "raw",
+				"jsonOutput": "{\n  \"orderNumber\": \"1042\",\n  \"date\": \"2026-10-30\",\n  \"customer\": {\n    \"name\": \"Riverside Manufacturing\",\n    \"contactName\": \"Sarah Chen\",\n    \"email\": \"sarah.chen@riverside.example.com\",\n    \"address\": \"1200 Industrial Boulevard\\nPortland, OR 97201\\nUnited States\",\n    \"accountNumber\": \"CUST-40218\"\n  },\n  \"items\": [\n    {\n      \"description\": \"Annual licence, unlimited seats\",\n      \"qty\": 1,\n      \"unit\": \"licence\",\n      \"unitPrice\": 12000\n    },\n    {\n      \"description\": \"Implementation and setup\",\n      \"qty\": 40,\n      \"unit\": \"hours\",\n      \"unitPrice\": 175\n    },\n    {\n      \"description\": \"Staff training session\",\n      \"qty\": 2,\n      \"unit\": \"sessions\",\n      \"unitPrice\": 500\n    }\n  ]\n}",
+				"options": {}
+			},
+			"id": "b0a3c1e2-6f0e-4c1b-9a51-1f6f3f0d1a02",
+			"name": "Order",
+			"type": "n8n-nodes-base.set",
+			"typeVersion": 3.4,
+			"position": [220, 0]
+		},
+		{
+			"parameters": {
+				"mode": "runOnceForEachItem",
+				"jsCode": "// Maps an order onto the fields the invoice-classic template expects.\n// Change the vendor details and tax rate to your own.\nconst order = $json;\nconst taxRate = 0.1;\n\nconst money = (amount) =>\n\tamount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });\nconst formatDate = (date) =>\n\tdate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });\n\nconst issued = new Date(order.date);\nconst due = new Date(issued);\ndue.setDate(due.getDate() + 30);\n\nconst subtotal = order.items.reduce((sum, item) => sum + item.qty * item.unitPrice, 0);\nconst tax = Math.round(subtotal * taxRate * 100) / 100;\nconst total = subtotal + tax;\nconst invoiceNumber = `INV-${order.orderNumber}`;\n\nreturn {\n\tjson: {\n\t\tinvoiceNumber,\n\t\tpoNumber: order.orderNumber,\n\t\tdate: formatDate(issued),\n\t\tdueDate: formatDate(due),\n\t\tpaymentTerms: 'Net 30',\n\t\tcurrency: 'USD',\n\t\tvendor: {\n\t\t\tname: 'Example Supplies Inc.',\n\t\t\taddress: '500 Innovation Drive\\nSan Jose, CA 95110\\nUnited States',\n\t\t\tphone: '(408) 555-0142',\n\t\t\temail: 'billing@example.com',\n\t\t\twebsite: 'example.com',\n\t\t\ttaxId: 'EIN 00-0000000',\n\t\t},\n\t\tcustomer: order.customer,\n\t\titems: order.items.map((item) => ({\n\t\t\tdescription: item.description,\n\t\t\tqty: item.qty,\n\t\t\tunit: item.unit,\n\t\t\tunitPrice: money(item.unitPrice),\n\t\t\ttotal: money(item.qty * item.unitPrice),\n\t\t})),\n\t\tsubtotal: money(subtotal),\n\t\tdiscountLabel: 'Discount',\n\t\tdiscountAmount: money(0),\n\t\ttaxableAmount: money(subtotal),\n\t\ttaxLabel: `Sales tax (${taxRate * 100}%)`,\n\t\ttaxAmount: money(tax),\n\t\ttotal: money(total),\n\t\tamountPaid: money(0),\n\t\tbalanceDue: money(total),\n\t\tnotes: `Please quote ${invoiceNumber} with your payment.`,\n\t\tpaymentInstructions: 'Bank transfer: Example Bank, routing 000000000, account 0000-000-000',\n\t\tpayment: { url: `https://example.com/pay/${invoiceNumber}` },\n\t},\n};\n"
+			},
+			"id": "b0a3c1e2-6f0e-4c1b-9a51-1f6f3f0d1a03",
+			"name": "Invoice Data",
+			"type": "n8n-nodes-base.code",
+			"typeVersion": 2,
+			"position": [440, 0]
+		},
+		{
+			"parameters": {
+				"resource": "pdf",
+				"operation": "fromTemplate",
+				"templateId": {
+					"__rl": true,
+					"mode": "id",
+					"value": "invoice-classic"
+				},
+				"data": "={{ $json }}",
+				"renderOptions": {
+					"title": "=Invoice {{ $json.invoiceNumber }}"
+				},
+				"fileName": "={{ $json.invoiceNumber }}.pdf"
+			},
+			"id": "b0a3c1e2-6f0e-4c1b-9a51-1f6f3f0d1a04",
+			"name": "Create Invoice PDF",
+			"type": "@makespdf/n8n-nodes-makespdf.makesPdf",
+			"typeVersion": 1,
+			"position": [660, 0]
+		}
+	],
+	"connections": {
+		"When clicking 'Execute workflow'": {
+			"main": [
+				[
+					{
+						"node": "Order",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Order": {
+			"main": [
+				[
+					{
+						"node": "Invoice Data",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Invoice Data": {
+			"main": [
+				[
+					{
+						"node": "Create Invoice PDF",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"settings": {
+		"executionOrder": "v1"
+	}
+}
