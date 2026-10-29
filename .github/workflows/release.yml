@@ -1,0 +1,84 @@
+# Publishes @makespdf/n8n-nodes-makespdf to npm with a provenance statement.
+#
+# n8n only verifies community nodes published from GitHub Actions with npm
+# provenance, so this workflow is the only way a version reaches npm.
+#
+# - Push a tag equal to package.json's version (e.g. `0.1.0`, no `v`) to
+#   publish. The operator pushes tags; agents never do.
+# - Run it by hand (Actions -> Release -> Run workflow) for a dry run: it
+#   lints, builds, tests and packs with provenance enabled, publishing nothing.
+#   npm refuses even a dry run for a version already on npm, so bump the
+#   version first.
+#
+# Authentication is npm Trusted Publishing (OIDC): no npm token is stored in
+# this repository. The package's Trusted Publisher on npmjs.com must name
+# this repository and the workflow file `release.yml`, and must allow the
+# "npm publish" action (publishers created after 2026-09-03 default to staged
+# publishing only). A new publisher expires unless it publishes within 2 days,
+# so push the release tag soon after creating it.
+#
+# No dependency cache here: a job holding `id-token: write` should not restore
+# a cache another workflow could have written.
+
+name: Release
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+
+    permissions:
+      # Mints the OIDC token npm exchanges for publish rights and signs the
+      # provenance statement with.
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          registry-url: 'https://registry.npmjs.org'
+
+      # Trusted Publishing needs npm 11.5.1 or later.
+      - name: Update npm
+        run: npm install -g npm@^11.5.1
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check the tag matches package.json
+        if: github.event_name == 'push'
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [ "$GITHUB_REF_NAME" != "$version" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match package.json version $version" >&2
+            exit 1
+          fi
+
+      - name: Test
+        run: npm test
+
+      - name: Dry run
+        if: github.event_name == 'workflow_dispatch'
+        run: npm run lint && npm run build && npm publish --dry-run
+        env:
+          RELEASE_MODE: 'true'
+          NPM_CONFIG_PROVENANCE: 'true'
+
+      # `n8n-node release` detects GitHub Actions and runs lint, build and
+      # `npm publish` with provenance.
+      - name: Publish
+        if: github.event_name == 'push'
+        run: npm run release

@@ -1,0 +1,66 @@
+{
+	"name": "@makespdf/n8n-nodes-makespdf",
+	"version": "0.1.0",
+	"description": "n8n node for makesPDF: render markdown, saved templates or template scripts to tagged, accessible PDFs.",
+	"license": "MIT",
+	"homepage": "https://makespdf.com/?ref=n8n",
+	"keywords": [
+		"n8n-community-node-package",
+		"n8n",
+		"pdf",
+		"markdown",
+		"pdf-generation",
+		"makespdf"
+	],
+	"author": {
+		"name": "makesPDF",
+		"email": "jason@lecstor.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/makesPDF/n8n-nodes-makespdf.git"
+	},
+	"bugs": {
+		"url": "https://github.com/makesPDF/n8n-nodes-makespdf/issues"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"test": "vitest run",
+		"release": "n8n-node release",
+		"prepublishOnly": "n8n-node prerelease"
+	},
+	"files": [
+		"dist",
+		"!dist/**/*.tsbuildinfo"
+	],
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	},
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
+		"credentials": [
+			"dist/credentials/MakesPdfApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/MakesPdf/MakesPdf.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "0.54.4",
+		"eslint": "9.32.0",
+		"n8n-workflow": "2.16.0",
+		"prettier": "3.6.2",
+		"release-it": "^21.1.0",
+		"typescript": "5.9.2",
+		"vitest": "^3.2.4"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}
