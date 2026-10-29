@@ -103,19 +103,29 @@ export function buildMarkdownToPdf(markdown: string, options: MarkdownOptions): 
 	return { method: 'POST', path: '/api/v1/md', body, expectsPdf: true };
 }
 
+/**
+ * The server falls back to the template's sample data only when `data` is
+ * absent, so an empty object is left out rather than sent.
+ */
+function addData(body: IDataObject, data: IDataObject): void {
+	if (Object.keys(data).length > 0) body.data = data;
+}
+
 export function buildRenderTemplate(
 	templateId: string,
 	data: IDataObject,
 	title?: string,
 ): ApiRequest {
-	const body: IDataObject = { templateId: requireText(templateId, 'Template ID').trim(), data };
+	const body: IDataObject = { templateId: requireText(templateId, 'Template ID').trim() };
+	addData(body, data);
 	const opts = compact({ title });
 	if (Object.keys(opts).length > 0) body.options = opts;
 	return { method: 'POST', path: '/api/v1/render', body, expectsPdf: true };
 }
 
 export function buildRenderDsl(dsl: string, data: IDataObject, title?: string): ApiRequest {
-	const body: IDataObject = { dsl: requireText(dsl, 'Template script'), data };
+	const body: IDataObject = { dsl: requireText(dsl, 'Template script') };
+	addData(body, data);
 	const opts = compact({ title });
 	if (Object.keys(opts).length > 0) body.options = opts;
 	return { method: 'POST', path: '/api/v1/render', body, expectsPdf: true };

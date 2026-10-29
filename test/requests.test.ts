@@ -77,10 +77,16 @@ describe('buildRenderTemplate', () => {
 	});
 
 	it('adds the title as an option', () => {
-		expect(buildRenderTemplate('invoice-classic', {}, 'Invoice 42').body).toEqual({
+		expect(buildRenderTemplate('invoice-classic', { n: 1 }, 'Invoice 42').body).toEqual({
 			templateId: 'invoice-classic',
-			data: {},
+			data: { n: 1 },
 			options: { title: 'Invoice 42' },
+		});
+	});
+
+	it('leaves out empty data so the template sample data is used', () => {
+		expect(buildRenderTemplate('invoice-classic', {}).body).toEqual({
+			templateId: 'invoice-classic',
 		});
 	});
 
@@ -97,6 +103,12 @@ describe('buildRenderDsl', () => {
 			path: '/api/v1/render',
 			body: { dsl, data: { name: 'Ada' } },
 			expectsPdf: true,
+		});
+	});
+
+	it('leaves out empty data so the script sample data is used', () => {
+		expect(buildRenderDsl('const template = doc(page());', {}).body).toEqual({
+			dsl: 'const template = doc(page());',
 		});
 	});
 

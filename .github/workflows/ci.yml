@@ -38,8 +38,7 @@ jobs:
       - name: Test
         run: npm test
 
-      # Packs exactly what a release would publish, without publishing.
-      - name: Publish dry run
-        run: npm publish --dry-run
-        env:
-          RELEASE_MODE: 'true'
+      # Lists exactly what a release would publish. `npm pack` rather than
+      # `npm publish --dry-run`, which fails once the current version is on npm.
+      - name: Pack dry run
+        run: npm pack --dry-run

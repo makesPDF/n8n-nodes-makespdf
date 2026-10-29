@@ -49,7 +49,7 @@ export class MakesPdfApi implements ICredentialType {
 	// Listing your own recent renders needs a valid key and costs nothing.
 	test: ICredentialTestRequest = {
 		request: {
-			baseURL: '={{$credentials.baseUrl.replace(/\\/+$/, "")}}',
+			baseURL: '={{($credentials.baseUrl || "https://makespdf.com").replace(/\\/+$/, "")}}',
 			url: '/api/v1/artifacts',
 			method: 'GET',
 			qs: { limit: 1 },

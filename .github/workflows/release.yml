@@ -7,10 +7,18 @@
 #   publish. The operator pushes tags; agents never do.
 # - Run it by hand (Actions -> Release -> Run workflow) for a dry run: it
 #   lints, builds, tests and packs with provenance enabled, publishing nothing.
+#   npm refuses even a dry run for a version already on npm, so bump the
+#   version first.
 #
 # Authentication is npm Trusted Publishing (OIDC): no npm token is stored in
 # this repository. The package's Trusted Publisher on npmjs.com must name
-# this repository and the workflow file `release.yml`.
+# this repository and the workflow file `release.yml`, and must allow the
+# "npm publish" action (publishers created after 2026-09-03 default to staged
+# publishing only). A new publisher expires unless it publishes within 2 days,
+# so push the release tag soon after creating it.
+#
+# No dependency cache here: a job holding `id-token: write` should not restore
+# a cache another workflow could have written.
 
 name: Release
 
@@ -42,7 +50,6 @@ jobs:
         with:
           node-version: 'lts/*'
           registry-url: 'https://registry.npmjs.org'
-          cache: 'npm'
 
       # Trusted Publishing needs npm 11.5.1 or later.
       - name: Update npm
