@@ -1,6 +1,6 @@
 {
 	"name": "@makespdf/n8n-nodes-makespdf",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "n8n node for makesPDF: render markdown, saved templates or template scripts to tagged, accessible PDFs.",
 	"license": "MIT",
 	"homepage": "https://makespdf.com/?ref=n8n",
@@ -58,7 +58,7 @@
 		"prettier": "3.6.2",
 		"release-it": "^21.1.0",
 		"typescript": "5.9.2",
-		"vitest": "^3.2.4"
+		"vitest": "^4.1.12"
 	},
 	"peerDependencies": {
 		"n8n-workflow": "*"
