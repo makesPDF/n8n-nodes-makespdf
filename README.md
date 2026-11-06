@@ -112,18 +112,9 @@ npm run build
 npm test
 ```
 
-To point the node at a local makesPDF server, set the credential's Base URL to that server, for example `http://localhost:8788`.
-
 ### Releasing
 
-Versions are published to npm only by the `Release` GitHub Actions workflow, with npm provenance, which n8n requires for verified community nodes.
-
-1. Bump `version` in `package.json`, add a `CHANGELOG.md` entry, and merge to `main`.
-2. Push a tag equal to the version, with no `v` prefix: `git tag 0.1.1 && git push origin 0.1.1`.
-
-Run the workflow by hand from the Actions tab for a dry run that builds and packs with provenance and publishes nothing. npm refuses even a dry run for a version that is already published, so bump the version first.
-
-The package's Trusted Publisher on npmjs.com names this repository and the workflow file `release.yml`, with the "npm publish" action allowed. A new Trusted Publisher expires if it does not publish within 2 days, so push the release tag soon after creating it.
+The maintainers publish versions to npm from a version tag. Only the [`Release` workflow](.github/workflows/release.yml) publishes, with npm provenance, which n8n requires for verified community nodes. Pull requests don't need to bump the version.
 
 ## License
 
