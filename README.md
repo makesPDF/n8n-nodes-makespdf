@@ -7,6 +7,7 @@ Every PDF makesPDF produces is tagged and dual-compliant with PDF/A-2A and PDF/U
 - [Installation](#installation)
 - [Credentials](#credentials)
 - [Operations](#operations)
+- [Example workflows](#example-workflows)
 - [Using it as an AI Agent tool](#using-it-as-an-ai-agent-tool)
 - [Costs and limits](#costs-and-limits)
 - [Development](#development)
@@ -93,6 +94,17 @@ Checks markdown for accessibility problems without rendering it: heading order, 
 ### Errors
 
 A failed call shows makesPDF's own message and hint. A rejected key, missing credits and the rate limit each get a specific message. Turn on **Continue On Fail** to receive an `error` field on the item instead of stopping the workflow.
+
+## Example workflows
+
+The [`examples`](https://github.com/makesPDF/n8n-nodes-makespdf/tree/main/examples) folder holds workflows you can import. In n8n, open a new workflow, choose **... -> Import from File** (or paste the JSON onto the canvas), then pick your makesPDF credential on each makesPDF node.
+
+| File                                                                                                                   | What it does                                                                                                                                                                                     |
+| ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`invoice-from-order.json`](https://github.com/makesPDF/n8n-nodes-makespdf/blob/main/examples/invoice-from-order.json) | Takes an order, works out line totals, tax and due date in a Code node, and fills the `invoice-classic` library template. Swap the **Order** node for your trigger: a form, a webhook or a shop. |
+| [`markdown-report.json`](https://github.com/makesPDF/n8n-nodes-makespdf/blob/main/examples/markdown-report.json)       | Builds a markdown report with a table, an alert and a Mermaid pie chart, checks it for accessibility issues, then renders it with page numbers.                                                  |
+
+Both write the PDF to the `data` binary field, ready for a Send Email, Google Drive or Write Files node.
 
 ## Using it as an AI Agent tool
 
